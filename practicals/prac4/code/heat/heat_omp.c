@@ -18,10 +18,17 @@ int main( void ) {
   double *u, *uo;
   double du, du_loc;
   double rms;
+  double time_start, time_end;
 
   int n, n_time_steps;
   int L;
   int j, t;
+
+    // start time
+  time_start = omp_get_wtime ( );
+
+  // end time
+  time_end = omp_get_wtime ( );
 
   /* Read in the input data */
   /* Note the problem size read in is the number of points we can vary
@@ -144,13 +151,17 @@ int main( void ) {
 
   /* Check the solution against the exact, analytic answer */
   rms = 0.0;
-  /* ... */
-    for (j=1; j<n-1; j++) {
+
+#pragma omp parallel default (none)  shared (u, L, n_time_steps, rms, n, nu, time_end, time_start) private (j,du)
+   #pragma omp for reduction (+:rms)
+  for (j=1; j<n-1; j++) {
       du = u[ j ] - sin( j * PI / L ) *  exp( - n_time_steps * nu * PI * PI / ( L * L ) );
       rms += du*du;
     }
   printf( "The RMS error in the final solution is %-#14.8g\n", sqrt(rms/((double) n)) );
 
+  printf(" process time      = %e s\n", time_end - time_start);
+  
   return EXIT_SUCCESS;
 
 }

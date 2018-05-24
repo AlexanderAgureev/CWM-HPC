@@ -10,7 +10,7 @@ OBJS =	array_alloc.o gs_opt.o timer.o
 LIBS =	-lm
 
 CC = icc
-CFLAGS = -O0
+CFLAGS = -01
 LDFLAGS = 
 
 all: $(PROG)
